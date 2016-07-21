@@ -121,6 +121,20 @@ restore_cache() {
 header "Restoring cache"
 restore_cache | output "$LOG_FILE"
 
+###############################################################################
+# ofadown hotfix to run commands before package installation (so before dependencies installation)
+ofadown_before_dependencies_install() {
+  local has_script=$(read_json "$BUILD_DIR/package.json" ".scripts[\"beforeinstall\"]")
+  if [ -n "$has_script" ]; then
+    echo "Running beforeinstall"
+    npm run beforeinstall --if-present
+  fi
+}
+
+header "Before install"
+ofadown_before_dependencies_install | output "$LOG_FILE"
+###############################################################################
+
 build_dependencies() {
   if $PREBUILD; then
     echo "Prebuild detected (node_modules already exists)"
